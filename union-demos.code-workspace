@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"json.schemas": [
+
+		],
+		"python.defaultInterpreterPath": "/Users/pablo/union/venvs/demos/bin/python"
+	}
+}
