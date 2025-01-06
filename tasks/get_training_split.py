@@ -1,10 +1,10 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from typing import Tuple
+from .dataclass_defs import DataFrameDict
 
 
 def get_training_split(cfg: dict, df: pd.DataFrame)\
-        -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        -> DataFrameDict:
     if "test_size" in cfg:
         test_size = cfg['test_size']
     else:
@@ -16,4 +16,9 @@ def get_training_split(cfg: dict, df: pd.DataFrame)\
 
     X_train, X_test, y_train, y_test =\
         train_test_split(X, y, test_size=test_size)
-    return (X_train, X_test, y_train, y_test)
+    retVal = DataFrameDict()
+    retVal['X_train'] = X_train
+    retVal['X_test'] = X_test
+    retVal['y_train'] = y_train
+    retVal['y_test'] = y_test
+    return retVal

@@ -1,42 +1,8 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from typing import Tuple
-from sklearn.base import BaseEstimator
-import pandas as pd
-from dataclasses import dataclass
+from .dataclass_defs import SearchSpace, Hyperparameters, HpoResults
+from .dataclass_defs import DataFrameDict
 from itertools import product
-from flytekit import FlyteFile
-
-
-@dataclass
-class Hyperparameters:
-    max_depth: int
-    max_leaf_nodes: int
-    n_estimators: int
-
-
-@dataclass
-class SearchSpace:
-    max_depth: list[int]
-    max_leaf_nodes: list[int]
-    n_estimators: list[int]
-
-
-@dataclass
-class HpoResults:
-    hp: Hyperparameters
-    acc: float
-    model: FlyteFile
-
-    @property
-    def model(self) -> BaseEstimator:
-        pass
-        # deserialize the model from flytefile
-
-    @model.setter
-    def model(self, model: BaseEstimator):
-        pass
-        # serialize the model and put it in flytefile
 
 
 def create_search_grid(searchspace: SearchSpace) -> list[Hyperparameters]:
@@ -53,18 +19,21 @@ def create_search_grid(searchspace: SearchSpace) -> list[Hyperparameters]:
 def train_classifier_hpo(
         cfg: dict,
         hp: Hyperparameters,
-        X_train: pd.DataFrame,
-        X_test: pd.DataFrame,
-        y_train: pd.Series,
-        y_test: pd.Series) -> Tuple[BaseEstimator, float]:
+        dataframes: DataFrameDict) -> HpoResults:
 
     clf = RandomForestClassifier(
         max_depth=hp.max_depth,
         max_leaf_nodes=hp.max_leaf_nodes,
         n_estimators=hp.n_estimators)
+    X_train = dataframes['X_train']
+    X_test = dataframes['X_test']
+    y_train = dataframes['y_train']
+    y_test = dataframes['y_test']
 
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)
     acc = metrics.accuracy_score(y_test, y_pred)
     print("ACCURACY OF THE MODEL:", acc)
-    return HpoResults(hp, acc, clf)
+    retVal = HpoResults(hp, acc)
+    retVal.model = clf
+    return retVal
