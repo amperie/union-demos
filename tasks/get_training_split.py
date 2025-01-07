@@ -1,11 +1,11 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from dataclass_defs import DataSplits
-from flytekit.types.structured import StructuredDataset
+from dataclass_defs import DataFrameDict
+# from flytekit.types.structured import StructuredDataset
 
 
 def get_training_split(cfg: dict, df: pd.DataFrame)\
-        -> DataSplits:
+        -> DataFrameDict:
     if "test_size" in cfg:
         test_size = cfg['test_size']
     else:
@@ -17,9 +17,9 @@ def get_training_split(cfg: dict, df: pd.DataFrame)\
 
     X_train, X_test, y_train, y_test =\
         train_test_split(X, y, test_size=test_size)
-    retVal = DataSplits(
-        StructuredDataset(dataframe=X_train),
-        StructuredDataset(dataframe=X_test),
-        StructuredDataset(dataframe=y_train), 
-        StructuredDataset(dataframe=y_test))
+    retVal = DataFrameDict()
+    retVal.add("X_train", X_train)
+    retVal.add("X_test", X_test)
+    retVal.add("y_train", y_train)
+    retVal.add("y_test", y_test)
     return retVal
