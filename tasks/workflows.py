@@ -8,8 +8,12 @@ from get_training_split import get_training_split
 from train_model import train_classifier
 from train_model_hpo import train_classifier_hpo
 from train_model_hpo import create_search_grid
-from dataclass_defs import DataFrameDict, HpoResults
+from dataclass_defs import DataSplits, HpoResults
 from dataclass_defs import Hyperparameters, SearchSpace
+
+
+# Configuration Parameters
+enable_data_cache = False
 
 image = union.ImageSpec(
     name="data",
@@ -20,7 +24,7 @@ image = union.ImageSpec(
 
 @union.task(
     container_image=image,
-    cache=True,
+    cache=enable_data_cache,
     cache_version="1",
 )
 def tsk_get_data_hf(cfg: dict) -> pd.DataFrame:
@@ -29,7 +33,7 @@ def tsk_get_data_hf(cfg: dict) -> pd.DataFrame:
 
 @union.task(
     container_image=image,
-    cache=True,
+    cache=enable_data_cache,
     cache_version="1",
 )
 def tsk_featurize(cfg: dict, df: pd.DataFrame) -> pd.DataFrame:
@@ -38,10 +42,10 @@ def tsk_featurize(cfg: dict, df: pd.DataFrame) -> pd.DataFrame:
 
 @union.task(
     container_image=image,
-    cache=True,
+    cache=enable_data_cache,
     cache_version="1",
 )
-def tsk_get_training_split(cfg: dict, df: pd.DataFrame) -> DataFrameDict:
+def tsk_get_training_split(cfg: dict, df: pd.DataFrame) -> DataSplits:
     retVal = get_training_split(cfg, df)
     print(retVal)
     return retVal
@@ -53,11 +57,11 @@ def tsk_get_training_split(cfg: dict, df: pd.DataFrame) -> DataFrameDict:
     cache_version="1",
 )
 def tsk_train_model(cfg: dict,
-                    splits: DataFrameDict) -> BaseEstimator:
-    X_train = splits['X_train']
-    X_test = splits['X_test']
-    y_train = splits['y_train']
-    y_test = splits['y_test']
+                    splits: DataSplits) -> BaseEstimator:
+    X_train = splits.X_train
+    X_test = splits.X_test
+    y_train = splits.y_train
+    y_test = splits.y_test
     retVal = train_classifier(cfg, X_train, X_test, y_train, y_test)
     return retVal
 
@@ -69,7 +73,7 @@ def tsk_train_model(cfg: dict,
 )
 def tsk_train_model_hpo(cfg: dict,
                         hp: Hyperparameters,
-                        splits: DataFrameDict) -> HpoResults:
+                        splits: DataSplits) -> HpoResults:
     results = train_classifier_hpo(
         cfg, hp, splits)
     return results
@@ -82,7 +86,6 @@ def pablo_wf():
     df = tsk_get_data_hf(cfg)
     fdf = tsk_featurize(cfg, df)
     splits = tsk_get_training_split(cfg, fdf)
-    print(splits['X_train'])
 
     ss = SearchSpace(
         max_depth=[2, 10, 20],

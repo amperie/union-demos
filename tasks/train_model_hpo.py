@@ -1,7 +1,7 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 from dataclass_defs import SearchSpace, Hyperparameters, HpoResults
-from dataclass_defs import DataFrameDict
+from dataclass_defs import DataSplits
 from itertools import product
 
 
@@ -19,16 +19,16 @@ def create_search_grid(searchspace: SearchSpace) -> list[Hyperparameters]:
 def train_classifier_hpo(
         cfg: dict,
         hp: Hyperparameters,
-        dataframes: DataFrameDict) -> HpoResults:
+        splits: DataSplits) -> HpoResults:
 
     clf = RandomForestClassifier(
         max_depth=hp.max_depth,
         max_leaf_nodes=hp.max_leaf_nodes,
         n_estimators=hp.n_estimators)
-    X_train = dataframes['X_train']
-    X_test = dataframes['X_test']
-    y_train = dataframes['y_train']
-    y_test = dataframes['y_test']
+    X_train = splits.X_train.dataframe
+    X_test = splits.X_test.dataframe
+    y_train = splits.y_train.dataframe
+    y_test = splits.y_test.dataframe
 
     clf.fit(X_train, y_train)
     y_pred = clf.predict(X_test)

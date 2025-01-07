@@ -4,11 +4,10 @@ from flytekit import FlyteFile
 from joblib import dump
 from flytekit.types.structured import StructuredDataset
 import pandas as pd
-from mashumaro.mixins.json import DataClassJSONMixin
 
 
 @dataclass
-class DataFrameDict(DataClassJSONMixin):
+class DataFrameDict():
     _dataframes = {}
 
     def __getitem__(self, key):
@@ -22,6 +21,14 @@ class DataFrameDict(DataClassJSONMixin):
         print(value)
         sd = StructuredDataset(dataframe=value)
         self._dataframes[key] = sd
+
+
+@dataclass
+class DataSplits():
+    X_train: StructuredDataset
+    X_test: StructuredDataset
+    y_train: StructuredDataset
+    y_test: StructuredDataset
 
 
 @dataclass
