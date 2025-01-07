@@ -13,7 +13,7 @@ from dataclass_defs import Hyperparameters, SearchSpace
 
 
 # Configuration Parameters
-enable_data_cache = False
+enable_data_cache = True
 
 image = union.ImageSpec(
     name="data",
