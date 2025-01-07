@@ -2,14 +2,14 @@ import union
 import pandas as pd
 from functools import partial
 from sklearn.base import BaseEstimator
-from .get_data_hf import get_data_hf
-from .featurize_data import featurize
-from .get_training_split import get_training_split
-from .train_model import train_classifier
-from .train_model_hpo import train_classifier_hpo
-from .train_model_hpo import create_search_grid
-from .dataclass_defs import DataFrameDict, HpoResults
-from .dataclass_defs import Hyperparameters, SearchSpace
+from get_data_hf import get_data_hf
+from featurize_data import featurize
+from get_training_split import get_training_split
+from train_model import train_classifier
+from train_model_hpo import train_classifier_hpo
+from train_model_hpo import create_search_grid
+from dataclass_defs import DataFrameDict, HpoResults
+from dataclass_defs import Hyperparameters, SearchSpace
 
 image = union.ImageSpec(
     name="data",
@@ -38,7 +38,7 @@ def tsk_featurize(cfg: dict, df: pd.DataFrame) -> pd.DataFrame:
 
 @union.task(
     container_image=image,
-    cache=False,
+    cache=True,
     cache_version="1",
 )
 def tsk_get_training_split(cfg: dict, df: pd.DataFrame) -> DataFrameDict:
@@ -70,12 +70,8 @@ def tsk_train_model(cfg: dict,
 def tsk_train_model_hpo(cfg: dict,
                         hp: Hyperparameters,
                         splits: DataFrameDict) -> HpoResults:
-    X_train = splits['X_train']
-    X_test = splits['X_test']
-    y_train = splits['y_train']
-    y_test = splits['y_test']
     results = train_classifier_hpo(
-        cfg, hp, X_train, X_test, y_train, y_test)
+        cfg, hp, splits)
     return results
 
 
@@ -86,8 +82,7 @@ def pablo_wf():
     df = tsk_get_data_hf(cfg)
     fdf = tsk_featurize(cfg, df)
     splits = tsk_get_training_split(cfg, fdf)
-    # X_train, X_test, y_train, y_test = splits
-    # model = tsk_train_model(cfg, X_train, X_test, y_train, y_test)
+    print(splits['X_train'])
 
     ss = SearchSpace(
         max_depth=[2, 10, 20],
@@ -102,3 +97,7 @@ def pablo_wf():
     )
     results = union.map_task(pf)(hp=grid)
     print(results)
+
+
+if __name__ == "__main__":
+    pablo_wf()

@@ -1,6 +1,6 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from .dataclass_defs import DataFrameDict
+from dataclass_defs import DataFrameDict
 
 
 def get_training_split(cfg: dict, df: pd.DataFrame)\
