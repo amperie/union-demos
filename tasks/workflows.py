@@ -8,7 +8,7 @@ from get_training_split import get_training_split
 from train_model import train_classifier
 from train_model_hpo import train_classifier_hpo
 from train_model_hpo import create_search_grid
-from dataclass_defs import DataSplits, HpoResults
+from dataclass_defs import DataFrameDict, HpoResults
 from dataclass_defs import Hyperparameters, SearchSpace
 
 
@@ -45,9 +45,8 @@ def tsk_featurize(cfg: dict, df: pd.DataFrame) -> pd.DataFrame:
     cache=enable_data_cache,
     cache_version="1",
 )
-def tsk_get_training_split(cfg: dict, df: pd.DataFrame) -> DataSplits:
+def tsk_get_training_split(cfg: dict, df: pd.DataFrame) -> DataFrameDict:
     retVal = get_training_split(cfg, df)
-    print(retVal)
     return retVal
 
 
@@ -57,7 +56,7 @@ def tsk_get_training_split(cfg: dict, df: pd.DataFrame) -> DataSplits:
     cache_version="1",
 )
 def tsk_train_model(cfg: dict,
-                    splits: DataSplits) -> BaseEstimator:
+                    splits: DataFrameDict) -> BaseEstimator:
     X_train = splits.X_train
     X_test = splits.X_test
     y_train = splits.y_train
@@ -73,7 +72,22 @@ def tsk_train_model(cfg: dict,
 )
 def tsk_train_model_hpo(cfg: dict,
                         hp: Hyperparameters,
-                        splits: DataSplits) -> HpoResults:
+                        splits: DataFrameDict) -> HpoResults:
+    results = train_classifier_hpo(
+        cfg, hp, splits)
+    return results
+
+
+@union.task(
+    container_image=image,
+    cache=False,
+    cache_version="1",
+)
+def tsk_train_model_hpo_df(
+        cfg: dict,
+        hp: Hyperparameters,
+        df: pd.DataFrame) -> HpoResults:
+    splits = get_training_split(cfg, df)
     results = train_classifier_hpo(
         cfg, hp, splits)
     return results
@@ -94,9 +108,9 @@ def pablo_wf():
     grid = create_search_grid(ss)
 
     pf = partial(
-        tsk_train_model_hpo,
+        tsk_train_model_hpo_df,
         cfg=cfg,
-        splits=splits
+        df=fdf
     )
     results = union.map_task(pf)(hp=grid)
     print(results)

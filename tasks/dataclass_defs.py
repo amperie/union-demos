@@ -10,11 +10,11 @@ import pandas as pd
 class DataFrameDict():
     _dataframes = {}
 
-    def __getitem__(self, key):
+    def get(self, key):
         # return self._dataframes[key].open(pd.DataFrame).all()
         return self._dataframes[key].dataframe
 
-    def __setitem__(self, key, value):
+    def add(self, key, value):
         if not isinstance(value, pd.DataFrame)\
                 and not isinstance(value, pd.Series):
             raise TypeError("Item must be a pandas dataframe/series")
@@ -27,8 +27,8 @@ class DataFrameDict():
 class DataSplits():
     X_train: StructuredDataset
     X_test: StructuredDataset
-    y_train: StructuredDataset
-    y_test: StructuredDataset
+    y_train: pd.Series
+    y_test: pd.Series
 
 
 @dataclass
