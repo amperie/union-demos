@@ -7,14 +7,22 @@ from featurize_data import featurize
 from get_training_split import get_training_split
 from train_model_hpo import train_classifier_hpo
 from train_model_hpo import create_search_grid
+from get_best import get_best
 from dataclass_defs import HpoResults
 from dataclass_defs import Hyperparameters, SearchSpace
+from union import Artifact
+from typing_extensions import Annotated
 
 
 # Configuration Parameters
 enable_data_cache = True
+enable_model_cache = True
 cfg = {"target_column": "credit.policy"}
 cfg = {}
+
+ClsModelResults = Artifact(
+    name="pablo_classifier_model_results"
+)
 
 image = union.ImageSpec(
     base_image="ghcr.io/unionai-oss/union:py3.10-latest",
@@ -53,9 +61,6 @@ def tsk_featurize(df: pd.DataFrame) -> pd.DataFrame:
     return featurize(df)
 
 
-# @union.task()()
-    # cache=False,
-    # cache_version="1",
 @hpo_actor.task
 def tsk_train_model_hpo_df(
         hp: Hyperparameters,
@@ -68,7 +73,7 @@ def tsk_train_model_hpo_df(
 
 @union.dynamic(
     container_image=image,
-    cache=False,
+    cache=enable_model_cache,
     cache_version="1")
 def tsk_hyperparameter_optimization(
         grid: list[Hyperparameters],
@@ -79,6 +84,17 @@ def tsk_hyperparameter_optimization(
         res = tsk_train_model_hpo_df(hp, df)
         models.append(res)
     return models
+
+
+@hpo_actor.task
+def tsk_get_best(results: list[HpoResults]) -> HpoResults:
+    return get_best(results)
+
+
+@hpo_actor.task
+def tsk_register_artifact(results: HpoResults)\
+        -> Annotated[HpoResults, ClsModelResults]:
+    return ClsModelResults.create_from(results)
 
 
 @union.workflow
@@ -95,7 +111,10 @@ def pablo_wf():
     grid = create_search_grid(ss)
     models = tsk_hyperparameter_optimization(grid, fdf)
 
-    print(models)
+    best = tsk_get_best(models)
+    logged_artifact = tsk_register_artifact(best)
+
+    print(logged_artifact)
 
 
 if __name__ == "__main__":
