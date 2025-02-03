@@ -17,7 +17,7 @@ cfg = {"target_column": "credit.policy"}
 cfg = {}
 
 image = union.ImageSpec(
-    base_image="ghcr.io/unionai-oss/union:py3.11-0.1.121",
+    base_image="ghcr.io/unionai-oss/union:py3.10-latest",
     name="data",
     registry="pablounionai",
     packages=["scikit-learn", "datasets", "pandas", "union"]
@@ -27,6 +27,7 @@ hpo_actor = ActorEnvironment(
     name="hpo-actor",
     replica_count=3,
     ttl_seconds=30,
+    container_image=image,
     requests=Resources(
         cpu="2",
         mem="300Mi",
