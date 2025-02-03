@@ -4,13 +4,10 @@ from dataclass_defs import DataFrameDict
 # from flytekit.types.structured import StructuredDataset
 
 
-def get_training_split(cfg: dict, df: pd.DataFrame)\
+def get_training_split(df: pd.DataFrame)\
         -> DataFrameDict:
-    if "test_size" in cfg:
-        test_size = cfg['test_size']
-    else:
-        test_size = .3
-    target_column = cfg['target_column']
+    test_size = .3
+    target_column = "credit.policy"
 
     y = df[target_column]
     X = df.drop([target_column], axis=1)

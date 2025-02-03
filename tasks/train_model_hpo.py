@@ -17,7 +17,6 @@ def create_search_grid(searchspace: SearchSpace) -> list[Hyperparameters]:
 
 
 def train_classifier_hpo(
-        cfg: dict,
         hp: Hyperparameters,
         splits: DataFrameDict) -> HpoResults:
 
