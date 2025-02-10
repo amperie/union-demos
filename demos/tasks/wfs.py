@@ -11,7 +11,9 @@ from get_best import get_best
 from dataclass_defs import HpoResults
 from dataclass_defs import Hyperparameters, SearchSpace
 from union import Artifact
+from union.artifacts import OnArtifact
 from typing_extensions import Annotated
+from automation_wfs import model_automation_wf
 
 
 # Configuration Parameters
@@ -116,6 +118,16 @@ def pablo_wf():
 
     print(logged_artifact)
 
+
+on_model_results = OnArtifact(
+    trigger_on=ClsModelResults,
+)
+
+on_model_results_triggered = union.LaunchPlan.create(
+    "pablo_model_automation_wf",
+    model_automation_wf,
+    trigger=on_model_results
+)
 
 if __name__ == "__main__":
     pablo_wf()
