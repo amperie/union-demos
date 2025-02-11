@@ -1,7 +1,7 @@
 from sklearn.base import BaseEstimator
 from dataclasses import dataclass
 from flytekit import FlyteFile
-from joblib import dump
+from joblib import dump, load
 from flytekit.types.structured import StructuredDataset
 import pandas as pd
 
@@ -62,3 +62,8 @@ class HpoResults:
         dump(model, 'model.joblib')
         f = FlyteFile('model.joblib')
         self._model = f
+
+    @model.getter
+    def model(self):
+        model = load(self._model)
+        return model
