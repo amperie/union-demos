@@ -3,7 +3,7 @@
 import os
 import streamlit as st
 
-obj = os.getenv("pablo_classifier_model_results")
+obj = os.getenv("CLS_MODEL_RESULTS")
 
 st.title("Display workflow output")
 st.write(obj.acc)

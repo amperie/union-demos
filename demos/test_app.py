@@ -9,12 +9,6 @@ image = union.ImageSpec(
     registry="pablounionai",
 )
 
-
-# The `App` declaration.
-# Uses the `ImageSpec` declared above.
-# Your core logic of the app resides in the files declared
-# in the `include` parameter, in this case, `main.py`.
-# Input arttifacts are declared in the `inputs` parameter.
 app = union.app.App(
     name="streamlit-test-app",
     inputs=[
@@ -22,7 +16,7 @@ app = union.app.App(
             name="pablo_classifier_model_results",
             value=ClsModelResults.query(),
             download=True,
-            env_var="pablo_classifier_model_results",
+            env_var="CLS_MODEL_RESULTS",
         ),
     ],
     container_image=image,
