@@ -29,3 +29,7 @@ def tsk_nothin(input: HpoResults):
 @union.workflow
 def model_automation_wf(input: HpoResults = cls):
     tsk_nothin(input)
+
+
+if __name__ == "__main__":
+    model_automation_wf()
