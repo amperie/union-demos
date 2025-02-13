@@ -18,7 +18,7 @@ from demos.tasks.automation_wfs import model_automation_wf
 
 # Configuration Parameters
 enable_data_cache = True
-enable_model_cache = True
+enable_model_cache = False
 cfg = {"target_column": "credit.policy"}
 cfg = {}
 

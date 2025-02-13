@@ -1,4 +1,5 @@
 import pandas as pd
+from demos.tasks.dataclass_defs import HpoResults
 
 from sklearn.pipeline import Pipeline
 from sklearn.datasets import make_classification
@@ -6,7 +7,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import roc_auc_score, make_scorer
 from sklearn.model_selection import train_test_split
-from demos.tasks.dataclass_defs import HpoResults
 
 
 def load_data(n_samples=30_000):
@@ -95,11 +95,18 @@ def get_predictions_old():
 
 def get_predictions():
     from union.remote import UnionRemote
+    key = "ZGVtby5ob3N0ZWQudW5pb25haS5jbG91ZDp1ci1rZXk6LThTbC1vejhYQWtYeVR6YzJkZ0F1WDI2ZURZcEdINXhrRkc0X2tfUEFtODc0VmRDeUxhS2JnRk42LUZUaGlEcjpOb25l"
+    remote = UnionRemote.from_api_key(key, "flytesnacks", "development")
 
-    remote = UnionRemote.for_endpoint("demo.hosted.unionai.cloud")
     art = remote.get_artifact(
         "flyte://av0.2/demo/flytesnacks/development/"
         "pablo_classifier_model_results"
         "@adbglq57tlpsdndpb4b2/n4/0/o0")
+
     obj = art.get(HpoResults)
-    print(obj.acc)
+    model = obj.model
+
+    yhat_prob_train = model.predict_proba(X_train)[:, 1]
+    yhat_prob_test = model.predict_proba(X_test)[:, 1]
+
+    return y_train, yhat_prob_train, y_test, yhat_prob_test

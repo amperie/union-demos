@@ -1,6 +1,6 @@
 import streamlit as st
 
-from model import get_predictions
+from demos.apps.model import get_predictions
 from eval import get_metrics_df
 from visualization import plot_probability_distribution
 from visualization import plot_confusion_matrix
