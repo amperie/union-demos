@@ -1,9 +1,10 @@
 from sklearn.base import BaseEstimator
 from dataclasses import dataclass
 from flytekit import FlyteFile
-from joblib import dump, load
 from flytekit.types.structured import StructuredDataset
 import pandas as pd
+import pickle
+from joblib import dump, load
 
 
 @dataclass
@@ -54,6 +55,16 @@ class HpoResults:
     @property
     def model(self) -> BaseEstimator:
         return self._model
+
+    def serialize(self):
+        filename = "pkld_model.pkl"
+        with open(filename, 'wb') as f:
+            pickle.dump(self, f)
+        return FlyteFile(filename)
+
+    def deserialize(filename):
+        with open(filename, 'rb') as f:
+            return pickle.load(f)
 
     @model.setter
     def model(self, model: BaseEstimator):

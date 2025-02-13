@@ -1,7 +1,7 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from dataclass_defs import SearchSpace, Hyperparameters, HpoResults
-from dataclass_defs import DataFrameDict
+from demos.tasks.dataclass_defs import SearchSpace, Hyperparameters, HpoResults
+from demos.tasks.dataclass_defs import DataFrameDict
 from itertools import product
 
 

@@ -1,8 +1,7 @@
 import union
 from union import Artifact
 import union.app
-from dataclass_defs import HpoResults
-from union.app import App
+from demos.tasks.dataclass_defs import HpoResults
 
 
 image = union.ImageSpec(

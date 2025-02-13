@@ -2,18 +2,18 @@ import union
 from union import Resources
 from union.actor import ActorEnvironment
 import pandas as pd
-from get_data_hf import get_data_hf
-from featurize_data import featurize
-from get_training_split import get_training_split
-from train_model_hpo import train_classifier_hpo
-from train_model_hpo import create_search_grid
-from get_best import get_best
-from dataclass_defs import HpoResults
-from dataclass_defs import Hyperparameters, SearchSpace
+from demos.tasks.get_data_hf import get_data_hf
+from demos.tasks.featurize_data import featurize
+from demos.tasks.get_training_split import get_training_split
+from demos.tasks.train_model_hpo import train_classifier_hpo
+from demos.tasks.train_model_hpo import create_search_grid
+from demos.tasks.get_best import get_best
+from demos.tasks.dataclass_defs import HpoResults
+from demos.tasks.dataclass_defs import Hyperparameters, SearchSpace
 from union import Artifact
 from union.artifacts import OnArtifact
 from typing_extensions import Annotated
-from automation_wfs import model_automation_wf
+from demos.tasks.automation_wfs import model_automation_wf
 
 
 # Configuration Parameters
@@ -96,7 +96,7 @@ def tsk_get_best(results: list[HpoResults]) -> HpoResults:
 @hpo_actor.task
 def tsk_register_artifact(results: HpoResults)\
         -> Annotated[HpoResults, ClsModelResults]:
-    return ClsModelResults.create_from(results)
+    return ClsModelResults.create_from(results.serialize())
 
 
 @union.workflow

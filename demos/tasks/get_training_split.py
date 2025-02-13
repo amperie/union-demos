@@ -1,6 +1,6 @@
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from dataclass_defs import DataFrameDict
+from demos.tasks.dataclass_defs import DataFrameDict
 # from flytekit.types.structured import StructuredDataset
 
 

@@ -1,4 +1,4 @@
-from dataclass_defs import HpoResults
+from demos.tasks.dataclass_defs import HpoResults
 
 
 def get_best(results: list[HpoResults]) -> HpoResults:
