@@ -1,11 +1,14 @@
 import union
 from union import Resources
 
-ClsModelResults = union.Artifact(name="pablo_classifier_model_results")
+ClsModelResults = union.Artifact(name="pablo_classifier_model_results_fd")
 
 image = union.ImageSpec(
     name="streamlit-app",
-    packages=["union-runtime>=0.1.10", "streamlit==1.41.1"],
+    packages=[
+        "union-runtime>=0.1.10", "streamlit==1.41.1",
+        "scikit-learn", "datasets", "pandas", "union", "flytekit"
+        ],
     registry="pablounionai",
 )
 
@@ -22,6 +25,6 @@ app = union.app.App(
     container_image=image,
     args="streamlit run test_app_main.py --server.port 8080",
     port=8080,
-    include=["test_app_main.py"],
+    include=["."],
     limits=Resources(cpu="1", mem="1Gi"),
 )

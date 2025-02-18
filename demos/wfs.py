@@ -13,17 +13,19 @@ from demos.tasks.dataclass_defs import Hyperparameters, SearchSpace
 from union import Artifact
 from union.artifacts import OnArtifact
 from typing_extensions import Annotated
+from flytekit import FlyteDirectory
 from demos.tasks.automation_wfs import model_automation_wf
 
 
 # Configuration Parameters
 enable_data_cache = True
-enable_model_cache = False
+enable_model_cache = True
+cache_version = "2"
 cfg = {"target_column": "credit.policy"}
 cfg = {}
 
 ClsModelResults = Artifact(
-    name="pablo_classifier_model_results"
+    name="pablo_classifier_model_results_fd"
 )
 
 image = union.ImageSpec(
@@ -48,7 +50,7 @@ hpo_actor = ActorEnvironment(
 @union.task(
     container_image=image,
     cache=enable_data_cache,
-    cache_version="1",
+    cache_version=cache_version,
 )
 def tsk_get_data_hf() -> pd.DataFrame:
     return get_data_hf()
@@ -57,7 +59,7 @@ def tsk_get_data_hf() -> pd.DataFrame:
 @union.task(
     container_image=image,
     cache=enable_data_cache,
-    cache_version="1",
+    cache_version=cache_version,
 )
 def tsk_featurize(df: pd.DataFrame) -> pd.DataFrame:
     return featurize(df)
@@ -76,7 +78,7 @@ def tsk_train_model_hpo_df(
 @union.dynamic(
     container_image=image,
     cache=enable_model_cache,
-    cache_version="1")
+    cache_version=cache_version)
 def tsk_hyperparameter_optimization(
         grid: list[Hyperparameters],
         df: pd.DataFrame) -> list[HpoResults]:
@@ -88,7 +90,9 @@ def tsk_hyperparameter_optimization(
     return models
 
 
-@hpo_actor.task
+@hpo_actor.task(
+    cache=enable_model_cache,
+    cache_version=cache_version)
 def tsk_get_best(results: list[HpoResults]) -> HpoResults:
     return get_best(results)
 
@@ -96,7 +100,13 @@ def tsk_get_best(results: list[HpoResults]) -> HpoResults:
 @hpo_actor.task
 def tsk_register_artifact(results: HpoResults)\
         -> Annotated[HpoResults, ClsModelResults]:
-    return ClsModelResults.create_from(results.serialize())
+    return ClsModelResults.create_from(results.to_flytedir())
+
+
+@hpo_actor.task
+def tsk_register_fd_artifact(results: HpoResults)\
+        -> Annotated[FlyteDirectory, ClsModelResults]:
+    return ClsModelResults.create_from(results.to_flytedir())
 
 
 @union.workflow
@@ -114,9 +124,10 @@ def pablo_wf():
     models = tsk_hyperparameter_optimization(grid, fdf)
 
     best = tsk_get_best(models)
-    logged_artifact = tsk_register_artifact(best)
+    logged_artifact = tsk_register_fd_artifact(best)
 
     print(logged_artifact)
+    print(type(logged_artifact))
 
 
 on_model_results = OnArtifact(

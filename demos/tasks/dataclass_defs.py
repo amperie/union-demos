@@ -1,10 +1,11 @@
 from sklearn.base import BaseEstimator
 from dataclasses import dataclass
-from flytekit import FlyteFile
+from flytekit import FlyteFile, FlyteDirectory
 from flytekit.types.structured import StructuredDataset
 import pandas as pd
 import pickle
 from joblib import dump, load
+import os
 
 
 @dataclass
@@ -76,5 +77,40 @@ class HpoResults:
 
     @model.getter
     def model(self):
+        if self._model is None:
+            return None
         model = load(self._model)
         return model
+
+    def to_flytedir(self) -> FlyteDirectory:
+        folder = "tmpStorage"
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        vars = {
+            "acc": self.acc,
+            "hp": self.hp
+        }
+
+        with open(os.path.join(folder, 'vars.pkl'), 'wb') as handle:
+            pickle.dump(vars, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        model = self.model
+        if model is not None:
+            dump(model, os.path.join(folder, 'model.joblib'))
+
+        return FlyteDirectory(folder)
+
+    @staticmethod
+    def from_flytedir(flytedir: FlyteDirectory):
+        with open(os.path.join(flytedir, 'vars.pkl'), 'rb') as handle:
+            vars = pickle.load(handle)
+
+        acc = vars['acc']
+        hp = vars['hp']
+        model = None
+        if os.path.exists(os.path.join(flytedir, 'model.joblib')):
+            model = load(os.path.join(flytedir, 'model.joblib'))
+        retVal = HpoResults(hp, acc)
+        retVal.model = model
+        return retVal
