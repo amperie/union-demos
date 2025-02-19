@@ -3,6 +3,7 @@ import union
 from union.artifacts import Artifact
 
 from app_threshold_definition import app_threshold
+from typing import Annotated
 from flytekit import Secret, task, FlyteDirectory
 
 image = union.ImageSpec(
@@ -11,7 +12,7 @@ image = union.ImageSpec(
         "scikit-learn",
         "datasets",
         "pandas",
-        "union>=0.1.146",
+        "union==0.1.146",
         "flytekit",
     ],
     builder="union",
@@ -44,5 +45,7 @@ def tsk_deploy_app_threshold(art_results: FlyteDirectory) -> str:
 
 
 @union.workflow
-def wf_deploy_app_threshold(art_results: FlyteDirectory = ClsModelResults.query()):
+def wf_deploy_app_threshold(
+    art_results: Annotated[FlyteDirectory, ClsModelResults] = ClsModelResults.query(),
+):
     tsk_deploy_app_threshold(art_results=art_results)

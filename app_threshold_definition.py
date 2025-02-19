@@ -20,6 +20,8 @@ image = union.ImageSpec(
     builder="union",
 )
 # Was built using the imagespec above
+# union deploy apps app_threshold_wf.py pablo-threshold-app
+# and check the image build
 image = "356633062068.dkr.ecr.us-east-2.amazonaws.com/union/demo:streamlit-app-wcYy93m6tBmlCz2veV4_4w"
 
 app_threshold = union.app.App(
