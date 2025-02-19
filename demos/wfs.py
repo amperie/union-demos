@@ -99,12 +99,6 @@ def tsk_get_best(results: list[HpoResults]) -> HpoResults:
 
 
 @hpo_actor.task
-def tsk_register_artifact(results: HpoResults)\
-        -> Annotated[HpoResults, ClsModelResults]:
-    return ClsModelResults.create_from(results.to_flytedir())
-
-
-@hpo_actor.task
 def tsk_register_fd_artifact(results: HpoResults)\
         -> Annotated[FlyteDirectory, ClsModelResults]:
     return ClsModelResults.create_from(results.to_flytedir())
@@ -127,8 +121,7 @@ def pablo_wf():
     best = tsk_get_best(models)
     logged_artifact = tsk_register_fd_artifact(best)
 
-    print(logged_artifact)
-    print(type(logged_artifact))
+    return logged_artifact
 
 
 on_model_results = OnArtifact(
