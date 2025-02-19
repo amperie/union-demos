@@ -7,7 +7,8 @@ image = union.ImageSpec(
     name="streamlit-app",
     packages=[
         "union-runtime>=0.1.10", "streamlit==1.41.1",
-        "scikit-learn", "datasets", "pandas", "union", "flytekit>=1.15.0",
+        "scikit-learn", "datasets", "pandas", "union>=0.1.145",
+        "flytekit>=1.15.0",
         "seaborn", "matplotlib", "ing-theme-matplotlib"
         ],
     registry="pablounionai",

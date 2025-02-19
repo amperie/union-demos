@@ -4,11 +4,12 @@ from union.artifacts import Artifact
 from demos.tasks.dataclass_defs import HpoResults
 from app_threshold_definition import app_threshold
 from union import Secret
+from union.remote import UnionRemote
 
 image = union.ImageSpec(
     name="app-wf",
     packages=[
-        "scikit-learn", "datasets", "pandas", "union", "flytekit",
+        "scikit-learn", "pandas", "union>=0.1.145", "flytekit",
         ],
     registry="pablounionai",
 )
@@ -22,13 +23,17 @@ query = ClsModelResults.query()
 @union.task(
     container_image=image,
     secret_requets=[
-        Secret(key="pablo-api-key", env_var="UNION_API_KEY")]
+        Secret(
+            key="pablo-api-key", env_var="UNION_API_KEY",
+            mount_requirement=Secret.MountType.ENV_VAR)]
 )
 def tsk_deploy_app_threshold():
     print("Creating AppRemote")
-    app_remote = AppRemote(project="flytesnacks", domain="development")
+    # app_remote = AppRemote(project="flytesnacks", domain="development")
     print("Creating App")
-    app_remote.create_or_update(app_threshold)
+    # app_remote.create_or_update(app_threshold)
+    remote = UnionRemote()
+    remote.deploy_app(app_threshold)
 
 
 @union.workflow
