@@ -39,4 +39,7 @@ app_threshold = union.app.App(
     port=8080,
     include=["."],
     limits=Resources(cpu="1", mem="1Gi"),
+    env={
+        "CLS_MODEL_RESULTS": "s3://union-oc-production-demo/tt/a5trfslhd9g7gnh7rt9s-n4-0/9ce940702103fe13fdd09851cb50eed1"
+    },
 )
