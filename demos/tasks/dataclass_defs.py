@@ -51,11 +51,16 @@ class SearchSpace:
 class HpoResults:
     hp: Hyperparameters
     acc: float
+    _data: FlyteFile = None
     _model: FlyteFile = None
 
     @property
     def model(self) -> BaseEstimator:
         return self._model
+
+    @property
+    def data(self) -> pd.DataFrame:
+        return self._data
 
     def serialize(self):
         filename = "pkld_model.pkl"
@@ -82,6 +87,17 @@ class HpoResults:
         model = load(self._model)
         return model
 
+    @data.getter
+    def data(self):
+        if self._data is None:
+            return None
+        return pd.read_parquet(self._data)
+
+    @data.setter
+    def data(self, data: pd.DataFrame):
+        data.to_parquet('data.parquet')
+        self._data = FlyteFile('data.parquet')
+
     def to_flytedir(self) -> FlyteDirectory:
         folder = "tmpStorage"
         if not os.path.exists(folder):
@@ -99,6 +115,10 @@ class HpoResults:
         if model is not None:
             dump(model, os.path.join(folder, 'model.joblib'))
 
+        data = self.data
+        if data is not None:
+            data.to_parquet(os.path.join(folder, 'data.parquet'))
+
         return FlyteDirectory(folder)
 
     @staticmethod
@@ -111,6 +131,11 @@ class HpoResults:
         model = None
         if os.path.exists(os.path.join(flytedir, 'model.joblib')):
             model = load(os.path.join(flytedir, 'model.joblib'))
+
+        data = None
+        if os.path.exists(os.path.join(flytedir, 'data.parquet')):
+            data = pd.read_parquet(os.path.join(flytedir, 'data.parquet'))
         retVal = HpoResults(hp, acc)
         retVal.model = model
+        retVal.data = data
         return retVal

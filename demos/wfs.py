@@ -19,7 +19,7 @@ from demos.tasks.automation_wfs import model_automation_wf
 
 # Configuration Parameters
 enable_data_cache = True
-enable_model_cache = True
+enable_model_cache = False
 cache_version = "2"
 cfg = {"target_column": "credit.policy"}
 cfg = {}
@@ -72,6 +72,7 @@ def tsk_train_model_hpo_df(
     splits = get_training_split(df)
     results = train_classifier_hpo(
         hp, splits)
+    results.data = df
     return results
 
 
