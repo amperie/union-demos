@@ -1,7 +1,9 @@
 import union
 from union import Artifact
+from union import FlyteDirectory
+from flytekit import Deck
+from flytekit.deck import MarkdownRenderer
 import union.app
-from demos.tasks.dataclass_defs import HpoResults
 
 
 image = union.ImageSpec(
@@ -12,7 +14,7 @@ image = union.ImageSpec(
 )
 
 ClsModelResults = Artifact(
-    name="pablo_classifier_model_results"
+    name="pablo_classifier_model_results_fd"
 )
 cls = ClsModelResults.query()
 print(cls)
@@ -20,15 +22,18 @@ print(cls)
 
 @union.task(
     container_image=image,
+    enable_deck=True
 )
-def tsk_nothin(input: HpoResults):
+def tsk_deploy_app(input: FlyteDirectory):
+    md_text =\
+        '<a href="https://bold-king-90739.apps.demo.hosted.unionai.cloud/">'\
+        'App Deployment</a>'
+    m = MarkdownRenderer()
+    deck = Deck("App Deployment", m.to_html(md_text))
+    deck.append(m.to_html(md_text))
     print(input)
 
 
 @union.workflow
-def model_automation_wf(input: HpoResults = cls):
-    tsk_nothin(input)
-
-
-if __name__ == "__main__":
-    model_automation_wf()
+def model_automation_rwf(input: FlyteDirectory = cls):
+    tsk_deploy_app(input)

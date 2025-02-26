@@ -1,5 +1,4 @@
 import union
-from union.remote._app_remote import AppRemote
 from union.artifacts import Artifact
 from demos.tasks.dataclass_defs import HpoResults
 from app_threshold_definition import app_threshold

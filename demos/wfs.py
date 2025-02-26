@@ -11,10 +11,8 @@ from demos.tasks.get_best import get_best
 from demos.tasks.dataclass_defs import HpoResults
 from demos.tasks.dataclass_defs import Hyperparameters, SearchSpace
 from union import Artifact
-from union.artifacts import OnArtifact
 from typing_extensions import Annotated
 from flytekit import FlyteDirectory
-from demos.tasks.automation_wfs import model_automation_wf
 
 
 # Configuration Parameters
@@ -63,6 +61,15 @@ def tsk_get_data_hf() -> pd.DataFrame:
 )
 def tsk_featurize(df: pd.DataFrame) -> pd.DataFrame:
     return featurize(df)
+
+
+@union.task(
+    container_image=image,
+)
+def tsk_failure(df: pd.DataFrame, fd: FlyteDirectory) -> None:
+    fail = True
+    if fail:
+        raise Exception("Failure")
 
 
 @hpo_actor.task
@@ -120,19 +127,10 @@ def pablo_wf():
 
     best = tsk_get_best(models)
     logged_artifact = tsk_register_fd_artifact(best)
+    tsk_failure(fdf, logged_artifact)
 
-    return logged_artifact
+    return None
 
-
-on_model_results = OnArtifact(
-    trigger_on=ClsModelResults,
-)
-
-on_model_results_triggered = union.LaunchPlan.create(
-    "pablo_model_automation_wf",
-    model_automation_wf,
-    trigger=on_model_results
-)
 
 if __name__ == "__main__":
     pablo_wf()
