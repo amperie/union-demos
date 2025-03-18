@@ -12,7 +12,8 @@ enable_data_cache = True
 data_cache_version = "1"
 
 image = union.ImageSpec(
-    base_image="ghcr.io/unionai-oss/union:py3.10-latest",
+    builder="envd",
+    base_image="ghcr.io/unionai-oss/union:py3.11-latest",
     name="llm",
     registry="pablounionai",
     packages=["chromadb", "pandas", "vllm", "langchain",
