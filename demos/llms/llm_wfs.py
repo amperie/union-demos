@@ -5,11 +5,12 @@ from functions import evaluate_rag_parameters
 import pandas as pd
 from sys import platform
 from typing_extensions import Annotated
-from vllm import SamplingParams
+from flytekit.extras.accelerators import A10G
+
 from langchain_core.prompts.prompt import PromptTemplate
 
 enable_data_cache = True
-data_cache_version = "1"
+data_cache_version = "2"
 
 image = union.ImageSpec(
     builder="envd",
@@ -51,7 +52,7 @@ def tsk_get_data() -> pd.DataFrame:
     container_image=image,
     cache=enable_data_cache,
     cache_version=data_cache_version,
-    requests=union.Resources(mem="6Gi")
+    requests=union.Resources(mem="4Gi")
 )
 def tsk_build_vector_db(df: pd.DataFrame) -> union.FlyteDirectory:
     return build_vector_db(df)
@@ -75,7 +76,7 @@ def tsk_evaluate_rag_parameters(
         queries: list[str],
         vdb_dir: union.FlyteDirectory,
         llm_name: str,
-        params: SamplingParams,
+        params: dict,
         prompt_template: PromptTemplate)\
             -> float:
 
@@ -91,7 +92,7 @@ def tsk_evaluate_rag_parameters(
 def tsk_evaluate_rag(queries: list[str],
                      vdb_dir: union.FlyteDirectory,
                      llm_name: str,
-                     params_list: list[SamplingParams],
+                     params_list: list[dict],
                      prompt_template: PromptTemplate)\
         -> list[float]:
     results = []
@@ -104,6 +105,33 @@ def tsk_evaluate_rag(queries: list[str],
     return results
 
 
+@union.task(
+    container_image=image,
+    requests=union.Resources(mem="16Gi", cpu="4", gpu="1"),
+    enable_deck=True
+)
+def tsk_evaluate_rag_parameter(
+        queries: list[str],
+        vdb_dir: union.FlyteDirectory)\
+            -> float:
+
+    prompt_template = PromptTemplate(
+        input_variables=["context", "question"],
+        template="Answer the question using the context.\n"
+        "Question: {question}\nContext: {context}"
+    )
+    params = {"temperature": 0.1, "top_p": 0.9}
+
+    made_up_metric = evaluate_rag_parameters(
+        queries, vdb_dir,
+        "facebook/opt-125m",
+        params,
+        prompt_template)
+
+    union.Deck("RAG Evaluation", "Best Result: " + str(made_up_metric))
+    return made_up_metric
+
+
 @union.workflow
 def pablo_rag_vdb_wf() -> union.FlyteDirectory:
 
@@ -114,19 +142,24 @@ def pablo_rag_vdb_wf() -> union.FlyteDirectory:
     vdb = tsk_build_vector_db(df)
     vdb_artifact = tsk_register_vdb_artifact(vdb)
 
+    # Evaluate single RAG parameters
+    result_single = tsk_evaluate_rag_parameter(
+        queries=["start webex?", "restart computer?"],
+        vdb_dir=vdb_artifact
+    )
+
     # Evaluate RAG parameters
+    """"
     prompt_template = PromptTemplate(
         input_variables=["context", "question"],
         template="Answer the question using the context.\n"
         "Question: {question}\nContext: {context}"
     )
     test_params = [
-        SamplingParams(temperature=.5, top_p=0.9),
-        SamplingParams(temperature=.7, top_p=0.9),
-        SamplingParams(temperature=.8, top_p=0.9),
-        SamplingParams(temperature=.9, top_p=0.9),
-        SamplingParams(temperature=.9, top_p=0.8),
-        SamplingParams(temperature=.9, top_p=0.7),
+        {"temperature": 0.1, "top_p": 0.9},
+        {"temperature": 0.2, "top_p": 0.8},
+        {"temperature": 0.3, "top_p": 0.7},
+        {"temperature": 0.4, "top_p": 0.6},
     ]
     best_res = tsk_evaluate_rag(
         queries=["start webex?", "restart computer?"],
@@ -136,5 +169,6 @@ def pablo_rag_vdb_wf() -> union.FlyteDirectory:
         prompt_template=prompt_template
     )
     print(best_res)
+    """
 
     return vdb

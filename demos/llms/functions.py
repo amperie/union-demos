@@ -26,7 +26,7 @@ def evaluate_rag_parameters(
         queries: list[str],
         vdb_dir: union.FlyteDirectory,
         llm_name: str,
-        params: SamplingParams,
+        params: dict,
         prompt_template: str)\
             -> float:
 
@@ -35,18 +35,19 @@ def evaluate_rag_parameters(
     collection = vdb.get_or_create_collection("rag_data")
     # Setup LLM to test
     llm = LLM(model=llm_name)
+    sample_params = SamplingParams(**params)
 
     # Make prompts
     prompts = []
     for query in queries:
         context = collection.query(
             query_texts=query, n_results=1)
-        context_text = context["documents"][0][0]
+        context_text = context["documents"][0]
         prompt = prompt_template.format(context=context_text, question=query)
         prompts.append(prompt)
 
     # Run LLM
-    outputs = llm.generate(prompts, params)
+    outputs = llm.generate(prompts, sample_params)
 
     # Do evaluation of outputs
     # Just making up a metric here
