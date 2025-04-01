@@ -148,27 +148,4 @@ def pablo_rag_vdb_wf() -> union.FlyteDirectory:
         vdb_dir=vdb_artifact
     )
 
-    # Evaluate RAG parameters
-    """"
-    prompt_template = PromptTemplate(
-        input_variables=["context", "question"],
-        template="Answer the question using the context.\n"
-        "Question: {question}\nContext: {context}"
-    )
-    test_params = [
-        {"temperature": 0.1, "top_p": 0.9},
-        {"temperature": 0.2, "top_p": 0.8},
-        {"temperature": 0.3, "top_p": 0.7},
-        {"temperature": 0.4, "top_p": 0.6},
-    ]
-    best_res = tsk_evaluate_rag(
-        queries=["start webex?", "restart computer?"],
-        vdb_dir=vdb_artifact,
-        llm_name="facebook/opt-125m",
-        params_list=test_params,
-        prompt_template=prompt_template
-    )
-    print(best_res)
-    """
-
     return vdb
