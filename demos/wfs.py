@@ -23,7 +23,7 @@ from flytekit import FlyteDirectory
 enable_data_cache = False
 enable_model_cache = False
 cache_version = "3"
-cfg = {"target_column": "credit.policy"}
+cfg = {"target_column": "credit_policy"}
 cfg = {}
 
 ClsModelResults = Artifact(
@@ -154,7 +154,7 @@ def tsk_register_fd_artifact(results: HpoResults)\
 @union.workflow
 def pablo_wf():
 
-    df = tsk_get_data_databricks()
+    df = tsk_get_data_hf()
     # fdf = tsk_featurize_databricks(df)
     # fdf = tsk_featurize_spark(df)
     fdf = tsk_featurize(df)

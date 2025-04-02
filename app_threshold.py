@@ -32,7 +32,8 @@ metrics = get_metrics_df(
 st.dataframe(metrics)
 
 if st.button("Deploy Model"):
-    st.write("Model deployed to: ....")
+    st.write("Model deployed to: "
+             "https://mute-thunder-87bd9.apps.demo.hosted.unionai.cloud")
 
 # Plots
 cm = plot_confusion_matrix(yhat_prob_test, y_test, threshold)

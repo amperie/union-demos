@@ -5,10 +5,29 @@ from flytekitplugins.spark import Spark
 from flytekitplugins.spark import DatabricksV2 as Databricks
 
 
+def check_schema(df: pd.DataFrame) -> pd.DataFrame:
+    if "purpose_debt_consolidation" not in df.columns:
+        df["purpose_debt_consolidation"] = 0
+    if "purpose_credit_card" not in df.columns:
+        df["purpose_credit_card"] = 0
+    if "purpose_small_business" not in df.columns:
+        df["purpose_home_improvement"] = 0
+    if "purpose_all_other" not in df.columns:
+        df["purpose_all_other"] = 0
+    if "purpose_educational" not in df.columns:
+        df["purpose_educational"] = 0
+    if "purpose_major_purchase" not in df.columns:
+        df["purpose_major_purchase"] = 0
+    if "purpose_small_business" not in df.columns:
+        df["purpose_small_business"] = 0
+    df = df.reindex(sorted(df.columns), axis=1)
+    return df
+
+
 def featurize(df: pd.DataFrame) -> pd.DataFrame:
 
     df_encoded = pd.get_dummies(df, columns=['purpose'])
-    return df_encoded
+    return check_schema(df_encoded)
 
 
 spark_conf = {
@@ -17,7 +36,9 @@ spark_conf = {
     "spark.executor.cores": "1",
     "spark.executor.instances": "2",
     "spark.driver.cores": "1",
-    "spark.jars": "https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop3-latest.jar",
+    "spark.jars":
+        "https://storage.googleapis.com/"
+        "hadoop-lib/gcs/gcs-connector-hadoop3-latest.jar",
 }
 
 spark_image_spec = ImageSpec(
@@ -53,7 +74,9 @@ databricks_task_config = Databricks(
             "num_workers": 1,
             "aws_attributes": {
                 "availability": "SPOT_WITH_FALLBACK",
-                "instance_profile_arn": "arn:aws:iam::339713193121:instance-profile/databricks-demo",
+                "instance_profile_arn":
+                    "arn:aws:iam::339713193121:instance-profile"
+                    "/databricks-demo",
                 "first_on_demand": 1,
                 "zone_id": "auto",
             },
@@ -75,5 +98,5 @@ def featurize_spark(df: pd.DataFrame) -> pd.DataFrame:
     # Do stuff
     df_sp = df_sp.drop("purpose")
 
-    return df_sp.toPandas()
+    return check_schema(df_sp.toPandas())
     # return df

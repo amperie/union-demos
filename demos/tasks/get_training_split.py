@@ -7,7 +7,7 @@ from demos.tasks.dataclass_defs import DataFrameDict
 def get_training_split(df: pd.DataFrame)\
         -> DataFrameDict:
     test_size = .3
-    target_column = "credit.policy"
+    target_column = "credit_policy"
 
     y = df[target_column]
     X = df.drop([target_column], axis=1)

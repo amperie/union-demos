@@ -1,4 +1,4 @@
-credit.policy,purpose,int.rate,installment,log.annual.inc,dti,fico,days.with.cr.line,revol.bal,revol.util,inq.last.6mths,delinq.2yrs,pub.rec,not.fully.paid
+credit_policy,purpose,int_rate,installment,log_annual_inc,dti,fico,days_with_cr_line,revol_bal,revol_util,inq_last_6mths,delinq_2yrs,pub_rec,not_fully_paid
 1,debt_consolidation,0.1189,829.1,11.35040654,19.48,737,5639.958333,28854,52.1,0,0,0,0
 1,credit_card,0.1071,228.22,11.08214255,14.29,707,2760.0,33623,76.7,0,0,0,0
 1,debt_consolidation,0.1357,366.86,10.37349118,11.63,682,4710.0,3511,25.6,1,0,0,0
