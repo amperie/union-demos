@@ -5,8 +5,6 @@ from functions import evaluate_rag_parameters
 import pandas as pd
 from sys import platform
 from typing_extensions import Annotated
-from flytekit.extras.accelerators import A10G
-
 from langchain_core.prompts.prompt import PromptTemplate
 
 enable_data_cache = True

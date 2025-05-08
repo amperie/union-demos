@@ -34,7 +34,7 @@ lp = union.LaunchPlan.get_or_create(
 
 # Mapping over the launch plan to calculate interest for multiple loans
 @union.workflow
-def map_interest_wf() -> list[float]:
+def pablo_map_interest_wf() -> list[float]:
     principal = [1000, 5000, 10000]
     rate = [0.05, 0.04, 0.03]  # Different interest rates for each loan
     time = [12, 24, 36]        # Loan periods in months
@@ -44,7 +44,7 @@ def map_interest_wf() -> list[float]:
 # Mapping over the launch plan to calculate interest for
 # multiple loans while fixing an input
 @union.workflow
-def map_interest_fixed_principal_wf() -> list[float]:
+def pablo_map_interest_fixed_principal_wf() -> list[float]:
     rate = [0.05, 0.04, 0.03]  # Different interest rates for each loan
     time = [12, 24, 36]        # Loan periods in months
     # Note: principal is set to 1000 for all the calculations

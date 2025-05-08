@@ -169,7 +169,7 @@ def pablo_wf():
 
     best = tsk_get_best(models)
     logged_artifact = tsk_register_fd_artifact(best)
-    tsk_failure(fdf, logged_artifact)
+    # tsk_failure(fdf, logged_artifact)
     print(logged_artifact)
 
     return None
